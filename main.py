@@ -6,13 +6,14 @@ from Color import Color
 from Graph import Graph
 
 COLORS = [Color.RED, Color.BLUE, Color.GREEN]
+print("Palette de couleurs initiale : ", COLORS)
 
 # *********************************************************
 # ********* 1 - Génération du graphe et du coloriage *********
 # *********************************************************
 
-def generate_graph_3_colorable(nb_nodes)-> Graph:
-    gr = Graph(nb_nodes)
+def generate_graph_3_colorable(nb_nodes) -> Graph:
+    gr = Graph(nb_nodes) # la génération du graphe et de son coloriage est faite dans le constructeur
     gr.print()
     return gr
 
@@ -25,6 +26,7 @@ gr = generate_graph_3_colorable(20) # graphe de 20 noeuds
 def get_permuted_colors():
     random_colors = COLORS
     random.shuffle(random_colors)
+    print("Palette de couleurs permutée : ", random_colors)
     return random_colors
 
 def commitment_coloring(colors, random_values):
@@ -37,9 +39,9 @@ def commitment_coloring(colors, random_values):
 
     return commitments
 
-# Applique une permutation à la palette et associe-la au coloriage du graphe
-palette = get_permuted_colors()
+palette = get_permuted_colors() # permutation aléatoire sur les couleurs des noeuds
 colors = [palette[c - 1] for c in gr.coloring]  # -1 car gr.coloring contient 1,2,3
+print("Tableau de coloriage après permutation : ", [c.value for c in colors])
 random_values = [secrets.randbits(128) for _ in range(20)] # génère 20 valeurs de 128 bits
 commitments = commitment_coloring(colors, random_values)
 
@@ -62,16 +64,16 @@ def proof_coloring(graph, commitments, i, j, colors, random_values):
     # Recalculer les engagements
     r_i_bytes = r_i.to_bytes(16, "big")
     r_j_bytes = r_j.to_bytes(16, "big")
-    c_i_bytes = c_i.name.encode()
+    c_i_bytes = c_i.name.encode() 
     c_j_bytes = c_j.name.encode()
 
     y_i = hashlib.sha1(r_i_bytes + c_i_bytes).hexdigest()
     y_j = hashlib.sha1(r_j_bytes + c_j_bytes).hexdigest()
 
     # Vérification des conditions
-    if y_i != commitments[i]:
+    if y_i != commitments[i]: # h(r_i||c_i) = y_i
         return False
-    if y_j != commitments[j]:
+    if y_j != commitments[j]: # h(r_j||c_j) = y_j
         return False
     if c_i == c_j:  # les couleurs doivent être différentes
         return False
@@ -86,14 +88,13 @@ def run_protocol(graph, commitments, colors, random_values, rounds=400):
         raise ValueError("Le graphe n'a pas d'arêtes, impossible d'exécuter le protocole.")
 
     for _ in range(rounds):
-        # Choisir une arête (i, j) au hasard
+       
         i, j = random.choice(edges)
 
-        # Vérifier la preuve pour cette arête
         if not proof_coloring(graph, commitments, i, j, colors, random_values):
-            return False  # une seule erreur => échec
+            return False 
 
-    return True  # toutes les preuves réussies
+    return True
 
 authenticated = run_protocol(gr, commitments, colors, random_values, rounds=400)
 print("Authentification réussie ?" , authenticated)

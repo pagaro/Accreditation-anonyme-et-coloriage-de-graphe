@@ -39,8 +39,8 @@ def commitment_coloring(colors, random_values):
 
     return commitments
 
-palette = get_permuted_colors() # permutation aléatoire sur les couleurs des noeuds
-colors = [palette[c - 1] for c in gr.coloring]  # -1 car gr.coloring contient 1,2,3
+palette = get_permuted_colors() # permutation aléatoire sur les couleurs de la palette
+colors = [palette[c - 1] for c in gr.coloring] # appliquer la permutation aux couleurs du graphe
 print("Tableau de coloriage après permutation : ", [c.value for c in colors])
 random_values = [secrets.randbits(128) for _ in range(20)] # génère 20 valeurs de 128 bits
 commitments = commitment_coloring(colors, random_values)
